@@ -384,8 +384,7 @@ export function RadiographiesPage() {
 
             {viewing && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
-                        <div className="flex items-center justify-between mb-4">
+                    <div className="bg-white rounded-lg max-w-5xl w-full p-6 max-h-[92vh] overflow-y-auto">                        <div className="flex items-center justify-between mb-4">
                             <h3 className="text-xl font-semibold text-gray-900">
                                 X-ray details #{viewing.id}
                             </h3>
@@ -398,7 +397,17 @@ export function RadiographiesPage() {
                             </button>
                         </div>
 
-                        <div className="space-y-4">
+                         <div className="grid md:grid-cols-2 gap-6 items-start">
+                                <div className="flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden">
+                                     {imageUrls[viewing.id] && (
+                                         <img
+                                             src={imageUrls[viewing.id]}
+                                             alt={`Radiografie ${viewing.id}`}
+                                             className="max-h-[45vh] md:max-h-[75vh] w-full object-contain rounded-lg"
+                                         />
+                                     )}
+                                 </div>
+                             <div className="space-y-4">
                             <span className="text-sm text-gray-500">
                                 {formatDate(viewing.uploadDate)}
                             </span>
@@ -426,14 +435,6 @@ export function RadiographiesPage() {
                                 <p className="text-gray-700">
                                     Fracture Type: <strong>{viewing.fractureType}</strong>
                                 </p>
-                            )}
-
-                            {imageUrls[viewing.id] && (
-                                <img
-                                    src={imageUrls[viewing.id]}
-                                    alt={`Radiografie ${viewing.id}`}
-                                    className="w-full rounded-lg"
-                                />
                             )}
 
                             <div className="flex flex-wrap gap-2">
@@ -472,6 +473,7 @@ export function RadiographiesPage() {
                                     {(viewing.confidence * 100).toFixed(1)}%
                                 </p>
                             )}
+                             </div>
                         </div>
                     </div>
                 </div>

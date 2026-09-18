@@ -2,42 +2,42 @@ import { Header } from '../components/Header';
 import { TabNavigation } from '../components/TabNavigation';
 
 const models = [
-  {
-    title: 'U-Net',
-    description: 'Arhitectură de segmentare pixel-level folosită pentru identificarea precisă a conturului fracturilor. Modelul utilizează un encoder EfficientNet-B3 pre-antrenat și un decoder simetric cu skip connections pentru a păstra detaliile spațiale.',
-    task: 'Segementations',
-    color: 'bg-purple-100 text-purple-700',
-    image: 'https://lmb.informatik.uni-freiburg.de/people/ronneber/u-net/u-net-architecture.png',
-    hasImage: true,
-  },
-  {
-    title: 'YOLOv8m-seg',
-    description: 'Model de detecție în timp real care identifică locația fracturilor prin bounding boxes și generează simultan măști de segmentare. Optimizat pentru procesare rapidă a imaginilor medicale.',
-    task: 'Detections',
-    color: 'bg-blue-100 text-blue-700',
-    hasImage: false,
-  },
-  {
-    title: 'EfficientNet-B2',
-    description: 'Clasificator anatomic care identifică regiunea osoasă din radiografie: mână, picior, șold sau umăr. Folosește transfer learning de la ImageNet adaptat pentru imagini medicale.',
-    task: 'Clasification',
-    color: 'bg-green-100 text-green-700',
-    hasImage: false,
-  },
-  {
-    title: 'EfficientNet-B0',
-    description: 'Model lightweight pentru clasificarea tipului de fractură: oblică, cominutivă, greenstick, hairline sau spirală. Antrenat cu tehnici de augmentare pentru date medicale dezechilibrate.',
-    task: 'Clasification',
-    color: 'bg-green-100 text-green-700',
-    hasImage: false,
-  },
-  {
-    title: 'Random Forest',
-    description: 'Clasificator binar bazat pe features de textură (GLCM și LBP) pentru detectarea fracturilor. Ensemble de 500 arbori de decizie oferă predicții robuste și interpretabile.',
-    task: 'Clasification',
-    color: 'bg-green-100 text-green-700',
-    hasImage: false,
-  },
+    {
+        title: 'U-Net',
+        description: 'Pixel-level segmentation architecture used for precisely identifying the contour of fractures. The model uses a pre-trained EfficientNet-B3 encoder and a symmetric decoder with skip connections to preserve spatial details.',
+        task: 'Segementations',
+        color: 'bg-purple-100 text-purple-700',
+        image: 'https://lmb.informatik.uni-freiburg.de/people/ronneber/u-net/u-net-architecture.png',
+        hasImage: true,
+    },
+    {
+        title: 'YOLOv8m-seg',
+        description: 'Real-time detection model that identifies the location of fractures through bounding boxes and simultaneously generates segmentation masks. Optimized for fast processing of medical images.',
+        task: 'Detections',
+        color: 'bg-blue-100 text-blue-700',
+        hasImage: false,
+    },
+    {
+        title: 'EfficientNet-B2',
+        description: 'Anatomical classifier that identifies the bone region from the radiograph: hand, leg, hip or shoulder. Uses transfer learning from ImageNet adapted for medical images.',
+        task: 'Clasification',
+        color: 'bg-green-100 text-green-700',
+        hasImage: false,
+    },
+    {
+        title: 'EfficientNet-B2',
+        description: 'Model for classifying the fracture type: oblique, comminuted, greenstick, hairline or spiral. Trained with augmentation techniques for imbalanced medical data.',
+        task: 'Clasification',
+        color: 'bg-green-100 text-green-700',
+        hasImage: false,
+    },
+    {
+        title: 'Random Forest',
+        description: 'Binary classifier based on texture features (GLCM and LBP) for fracture detection. An ensemble of 500 decision trees provides reliable and interpretable predictions.',
+        task: 'Clasification',
+        color: 'bg-green-100 text-green-700',
+        hasImage: false,
+    },
 ];
 
 export function OverviewPage() {

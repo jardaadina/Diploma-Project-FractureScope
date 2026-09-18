@@ -360,8 +360,8 @@ export function StatisticsPage() {
                     ) : (
                         <p className="text-sm text-gray-500 italic">
                             {fractureInfo
-                                ? 'Nu a fost detectată nicio fractură în analizele tale.'
-                                : 'Nu au fost găsite informații despre fractura ta.'}
+                                ? 'No fracture was detected in your results.'
+                                : 'No information about your fracture was found.'}
                         </p>
                     )}
                 </div>

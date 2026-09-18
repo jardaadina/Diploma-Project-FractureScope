@@ -37,11 +37,10 @@ public class ChatbotService {
 
     public String askChatbot(ChatRequest request) {
         if (groqApiKey == null || groqApiKey.isBlank()) {
-            return "Cheia GROQ_API_KEY nu este configurată pe server. " +
-                    "Adaugă groq.api.key=... în application.properties.";
+            return "Eroare de configurare a serverului / Server configuration error. (GROQ_API_KEY missing)";
         }
         if (request.getHistory() == null || request.getHistory().isEmpty()) {
-            return "Nu am primit niciun mesaj de la tine.";
+            return "Nu am primit niciun mesaj de la tine. / No message received from you.";
         }
 
         String systemPrompt = buildSystemPrompt(request.getUserId());
@@ -76,12 +75,12 @@ public class ChatbotService {
 
             Map<String, Object> respBody = response.getBody();
             if (respBody == null || !respBody.containsKey("choices")) {
-                return "Răspunsul de la AI a venit gol. Mai încearcă, te rog.";
+                return "Răspunsul de la AI a venit gol. Mai încearcă, te rog. / AI response was empty. Please try again.";
             }
 
             List<Map<String, Object>> choices = (List<Map<String, Object>>) respBody.get("choices");
             if (choices.isEmpty()) {
-                return "Răspunsul de la AI nu conține mesaje.";
+                return "Răspunsul de la AI nu conține mesaje. / AI response contains no messages.";
             }
 
             Map<String, Object> messageObj = (Map<String, Object>) choices.get(0).get("message");
@@ -89,7 +88,7 @@ public class ChatbotService {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return "Eroare la apelul către serviciul AI: " + e.getMessage();
+            return "Eroare la apelul către serviciul AI / Error calling AI service: " + e.getMessage();
         }
     }
 
@@ -104,8 +103,7 @@ public class ChatbotService {
                 .append("Regiunile anatomice clasificate sunt: Mână, Picior, Șold, Umăr.\n\n");
 
         sb.append("REGULI STRICTE:\n");
-        sb.append("1. Răspunzi DOAR în limba română.\n");
-        sb.append("2. Răspunzi DOAR la întrebări legate de:\n");
+        sb.append("1. CRITICAL RULE: YOU MUST DETECT THE USER'S LANGUAGE AND REPLY IN THE EXACT SAME LANGUAGE! IF THE USER WRITES IN ENGLISH, YOU MUST REPLY ONLY IN ENGLISH. Translate all patient data into English mentally.\n");        sb.append("2. Răspunzi DOAR la întrebări legate de:\n");
         sb.append("   - fracturi (tipuri, simptome, tratament, recuperare, prevenție)\n");
         sb.append("   - sistemul osos și articulațiile\n");
         sb.append("   - traumatologie și ortopedie de bază\n");

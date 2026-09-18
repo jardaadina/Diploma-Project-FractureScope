@@ -29,10 +29,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# ============================================
-# Configurare cai modele
-# ============================================
+#caile pentru modele
 PATH_ANATOMIC = "best_clasificator_anatomicB2512.pth"
 PATH_UNET = "best_unet_efficientnet800Size.pth"
 PATH_YOLO_DET = "fractura_segmentare_v3/weights/best.pt"
@@ -53,9 +50,7 @@ STD = np.array([0.229, 0.224, 0.225])
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"[AI Service] Folosim device: {DEVICE}")
 
-# ============================================
-# Incarcare modele la pornire (o singura data!)
-# ============================================
+#incarcare modele o singura data
 transform_tip = A.Compose([
     A.LongestMaxSize(max_size=260),
     A.PadIfNeeded(min_height=260, min_width=260, border_mode=cv2.BORDER_CONSTANT, fill=0),
@@ -87,10 +82,7 @@ rf_model = joblib.load(PATH_RF)
 
 print("[AI Service] Toate modelele incarcate cu succes!")
 
-# ============================================
-# Functii helper (din interface_pipeline.py)
-# ============================================
-
+#functii helper
 def get_tip_fractura(img_rgb, bbox):
     x, y, w, h = bbox
     y1, y2 = max(0, y - 20), min(img_rgb.shape[0], y + h + 20)
@@ -134,14 +126,14 @@ def extrage_trasaturi_pt_rf(img_crop_gray):
 
 
 def img_to_base64(img_rgb):
-    """Converteste imaginea numpy in string base64 pentru a o trimite ca JSON"""
+    #converteste imaginea in string ca sa o pot trimite ca si JSON
     img_bgr = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR)
     _, buffer = cv2.imencode('.jpg', img_bgr, [cv2.IMWRITE_JPEG_QUALITY, 85])
     return base64.b64encode(buffer).decode('utf-8')
 
 
 def run_unet_pipeline(img_orig, img_gray):
-    """Ruleaza pipeline-ul UNet si returneaza rezultatele"""
+    #rulez Unet si returneaza rezultatele
     img_rgb_curat = cv2.cvtColor(img_orig, cv2.COLOR_BGR2RGB)
     img_final = img_rgb_curat.copy()
 
@@ -206,7 +198,7 @@ def run_unet_pipeline(img_orig, img_gray):
 
 
 def run_yolo_pipeline(img_orig, img_gray):
-    """Ruleaza pipeline-ul YOLO si returneaza rezultatele"""
+    #ruleaza yolo si returneaza rezultatele
     img_rgb_curat = cv2.cvtColor(img_orig, cv2.COLOR_BGR2RGB)
     img_final = img_rgb_curat.copy()
 
@@ -246,32 +238,17 @@ def run_yolo_pipeline(img_orig, img_gray):
     return has_fracture, fracture_type, max_conf, detections, img_final
 
 
-# ============================================
-# ENDPOINTS
-# ============================================
-
+#endpoint uri
 @app.get("/health")
 def health_check():
     return {"status": "ok", "device": DEVICE, "models_loaded": True}
 
-
 @app.post("/predict")
 async def predict(
     file: UploadFile = File(...),
-    model_type: str = Form(default="UNet")  # "UNet" sau "YoloV8"
+    model_type: str = Form(default="UNet")  #unet sau yolo
 ):
-    """
-    Primeste o radiografie si returneaza rezultatul detectiei.
-
-    Returns:
-    - anatomic_region: regiunea detectata (Mana, Picior, Sold, Umar)
-    - has_fracture: true/false
-    - fracture_type: tipul fracturii (daca exista)
-    - confidence: scorul de incredere
-    - detections: lista de bounding boxes
-    - result_image_base64: imaginea cu rezultatul desenat (base64 JPEG)
-    """
-    # Citim imaginea din request
+    # citim imaginea din request
     contents = await file.read()
     nparr = np.frombuffer(contents, np.uint8)
     img_orig = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
@@ -281,7 +258,7 @@ async def predict(
 
     img_gray = cv2.cvtColor(img_orig, cv2.COLOR_BGR2GRAY)
 
-    # --- Clasificator anatomic ---
+    #clasificator anatomic
     clahe_simplu = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
     img_anat_gray = clahe_simplu.apply(img_gray)
     h, w = img_anat_gray.shape[:2]
@@ -298,13 +275,13 @@ async def predict(
         regiune_idx = anat_model(t_anat).argmax(1).item()
         anatomic_region = CLASE_RO[regiune_idx]
 
-    # --- Detectie fractura ---
+    #detectie fracturi
     if model_type == "UNet":
         has_fracture, fracture_type, confidence, detections, img_result = run_unet_pipeline(img_orig, img_gray)
     else:
         has_fracture, fracture_type, confidence, detections, img_result = run_yolo_pipeline(img_orig, img_gray)
 
-    # Convertim imaginea rezultat in base64
+    #conversie a imaginii rezultat in base64
     result_image_b64 = img_to_base64(img_result)
 
     return {
@@ -316,7 +293,6 @@ async def predict(
         "detections": detections,
         "result_image_base64": result_image_b64
     }
-
 
 if __name__ == "__main__":
     import uvicorn

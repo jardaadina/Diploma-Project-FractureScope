@@ -343,7 +343,7 @@ export function TestPage() {
                         )}
 
                         <div className="relative">
-                            <img src={currentResult.image} alt="X-Ray Analysis" className="w-full rounded-lg" />
+                            <img src={currentResult.image} alt="X-Ray Analysis" className="w-full max-h-[500px] object-contain rounded-lg"/>
                         </div>
 
                         <div className="flex gap-2">
@@ -571,7 +571,7 @@ export function TestPage() {
                                     <img
                                         src={viewingResult.image}
                                         alt="X-Ray Analysis"
-                                        className="w-full rounded-lg"
+                                        className="w-full max-h-[500px] object-contain rounded-lg"
                                     />
                                 )}
                             </div>

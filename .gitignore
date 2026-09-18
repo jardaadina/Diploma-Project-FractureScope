@@ -1,0 +1,32 @@
+# --- IDE ---
+.idea/
+.vscode/
+
+# --- Python (aiservice) ---
+backend/aiservice/venv/
+backend/aiservice/__pycache__/
+**/__pycache__/
+*.pyc
+
+# Model weights and artifacts (too large / regenerable)
+*.pth
+*.pkl
+backend/aiservice/fractura_segmentare_v3/
+backend/aiservice/results/
+
+# --- Java (authservice) ---
+backend/authservice/target/
+backend/authservice/.mvn/
+*.class
+
+# --- Frontend (node.js) ---
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# --- Uploads (user data / runtime files) ---
+uploads/
+
+# --- OS / misc ---
+.DS_Store
+Thumbs.db

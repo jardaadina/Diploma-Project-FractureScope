@@ -10,10 +10,10 @@ interface ChatMessage {
 const API_BASE = 'http://localhost:8081';
 
 const SUGGESTIONS = [
-    'Ce este o fractură oblică?',
-    'Cum se tratează o fractură de mână?',
-    'Care sunt simptomele unei fracturi de șold?',
-    'Cât durează vindecarea unei fracturi greenstick?',
+    'What is an oblique fracture?',
+    'How is a hand fracture treated?',
+    'What are the symptoms of a hip fracture?',
+    'How long does a greenstick fracture take to heal?',
 ];
 
 export function ChatbotWidget() {
@@ -23,7 +23,7 @@ export function ChatbotWidget() {
         {
             role: 'assistant',
             content:
-                'Salut! Sunt Dr. Scope, asistentul virtual FractureScope. Te pot ajuta cu întrebări despre fracturi, tipuri de fracturi, tratament și recuperare. Cu ce te pot ajuta?',
+                 "Hi! I'm Dr. Scope, the FractureScope virtual assistant. I can help you with questions about fractures, fracture types, treatment and recovery. How can I help you?",
         },
     ]);
     const [input, setInput] = useState('');
@@ -41,6 +41,17 @@ export function ChatbotWidget() {
         }
     }, [isOpen]);
 
+    useEffect(() => {
+        setMessages([
+            {
+                role: 'assistant',
+                content:
+                    "Hi! I'm Dr. Scope, the FractureScope virtual assistant. I can help you with questions about fractures, fracture types, treatment and recovery. How can I help you?",
+            },
+        ]);
+        setInput('');
+        setIsOpen(false);
+    }, [user?.userId]);
     if (!user) return null;
 
     const sendMessage = async (textOverride?: string) => {
@@ -74,7 +85,7 @@ export function ChatbotWidget() {
 
             const data = await res.json();
             const reply: string =
-                data.reply ?? 'Îmi pare rău, nu am putut genera un răspuns.';
+                data.reply ?? 'Sorry, I couldn\'t generate a response.';
 
             setMessages((prev) => [
                 ...prev,
@@ -87,7 +98,7 @@ export function ChatbotWidget() {
                 {
                     role: 'assistant',
                     content:
-                        '⚠️ Nu am putut contacta serverul AI. Verifică conexiunea și că backend-ul rulează. (' +
+                        'Couldn\'t reach the AI server. Check your connection and that the backend is running. (' +
                         (err.message || 'Eroare necunoscută') +
                         ')',
                 },
@@ -111,7 +122,7 @@ export function ChatbotWidget() {
                     onClick={() => setIsOpen(true)}
                     className="fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-white hover:opacity-90 transition-opacity z-50"
                     style={{ backgroundColor: '#5B5EA6' }}
-                    aria-label="Deschide chatbot medical"
+                    aria-label="Open medical chatbot"
                 >
                     <MessageCircle className="w-6 h-6" />
                 </button>
@@ -134,14 +145,14 @@ export function ChatbotWidget() {
                             <div>
                                 <p className="font-semibold text-sm">Dr. Scope</p>
                                 <p className="text-xs opacity-80">
-                                    Asistent medical FractureScope
+                                    Medical assistant FractureScope
                                 </p>
                             </div>
                         </div>
                         <button
                             onClick={() => setIsOpen(false)}
                             className="p-1 rounded hover:bg-white hover:bg-opacity-20 transition"
-                            aria-label="Închide chatbot"
+                            aria-label="Close chatbot"
                         >
                             <X className="w-5 h-5" />
                         </button>
@@ -188,7 +199,7 @@ export function ChatbotWidget() {
                         {messages.length === 1 && !isLoading && (
                             <div className="pt-2 space-y-2">
                                 <p className="text-xs text-gray-500 px-1">
-                                    Întrebări sugerate:
+                                    Suggested questions:
                                 </p>
                                 <div className="flex flex-wrap gap-2">
                                     {SUGGESTIONS.map((s) => (
@@ -215,7 +226,7 @@ export function ChatbotWidget() {
                                 </div>
                                 <div className="px-3 py-2 rounded-lg bg-white border border-gray-200 flex items-center gap-2 text-gray-500 text-sm">
                                     <Loader2 className="w-4 h-4 animate-spin" />
-                                    <span>Dr. Scope se gândește...</span>
+                                    <span>Dr. Scope is thinking...</span>
                                 </div>
                             </div>
                         )}
@@ -230,7 +241,7 @@ export function ChatbotWidget() {
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyDown={handleKeyDown}
-                                placeholder="Întreabă-mă orice despre fracturi..."
+                                placeholder="Ask me anything about fractures..."
                                 rows={1}
                                 disabled={isLoading}
                                 className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 resize-none max-h-24 disabled:bg-gray-50"
@@ -244,7 +255,7 @@ export function ChatbotWidget() {
                                     backgroundColor:
                                         !input.trim() || isLoading ? undefined : '#5B5EA6',
                                 }}
-                                aria-label="Trimite mesaj"
+                                aria-label="Send message"
                             >
                                 <Send className="w-4 h-4" />
                             </button>
