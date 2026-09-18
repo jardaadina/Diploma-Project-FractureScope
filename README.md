@@ -19,27 +19,9 @@ Most existing research tackles a single isolated task — either detection *or* 
 
 Five sequential modules, one complete diagnosis:
 
-```
-X-Ray Input
-    │
-    ▼
-Anatomical Classifier  (EfficientNet-B2)
-    │
-    ▼
-Segmentation  ── user chooses ──▶  U-Net  or  YOLOv8m-seg
-    │
-    ▼
-Random Forest Classifier  (texture-based false-alarm filtering)
-    │
-    ▼
-Fractured? ──No──▶ Anatomical region, unfractured
-    │Yes
-    ▼
-Morphological Classifier  (EfficientNet-B2, 10 fracture types)
-    │
-    ▼
-Full Diagnosis Output
-```
+<p align="center">
+  <img src="docs/screenshots/workflow-diagram.png" width="500" alt="FractureScope pipeline diagram"/>
+</p>
 
 1. **Anatomical Classifier** — identifies the body region (hand, leg, hip, shoulder) before any further analysis.
 2. **Segmentation** — the user picks between two complementary architectures:
@@ -48,7 +30,6 @@ Full Diagnosis Output
 3. **False-Alarm Filter** — a Random Forest classifier built on classical texture descriptors (GLCM, LBP, Hu Moments, edge density) rejects false positives caused by overlapping bones near joints.
 4. **Morphological Classifier** — categorizes the confirmed fracture into one of ten clinical types (avulsion, comminuted, greenstick, spiral, etc.).
 5. **Web Application** — displays the region, verdict, segmentation mask, and fracture type on a single screen, in under one second, with no dedicated GPU.
-
 ---
 
 ## Results
