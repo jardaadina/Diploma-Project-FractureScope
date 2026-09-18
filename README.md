@@ -1,93 +1,152 @@
-# PWEB_30645_Jarda_Adina_tema3
+# FractureScope
 
+**An end-to-end AI diagnostic system for automated bone fracture detection, segmentation, and classification in X-ray images.**
 
+Diploma project — Technical University of Cluj-Napoca, Faculty of Automation and Computer Science
+Results published as a paper presented at the **Computer Science Students Conference 2026**
 
-## Getting started
+---
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## The Problem
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+Bone fractures are among the most common medical emergencies worldwide. Diagnosis relies mainly on X-ray imaging, but manual interpretation is slow and depends heavily on the physician's experience. In emergency settings, the rate of missed or misdiagnosed fractures can reach **20–30%** — a gap that motivates the need for a fast, reliable automated support tool.
 
-## Add your files
+Most existing research tackles a single isolated task — either detection *or* classification. **FractureScope** unifies the entire diagnostic pipeline: starting from one X-ray image, the system determines the anatomical region, detects and segments the fracture, filters out false positives, and classifies the fracture's morphological type — all through a single web application, running in real time on a standard CPU.
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+---
+
+## How It Works
+
+Five sequential modules, one complete diagnosis:
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/jardaadina/pweb_30645_jarda_adina_tema3.git
-git branch -M main
-git push -uf origin main
+X-Ray Input
+    │
+    ▼
+Anatomical Classifier  (EfficientNet-B2)
+    │
+    ▼
+Segmentation  ── user chooses ──▶  U-Net  or  YOLOv8m-seg
+    │
+    ▼
+Random Forest Classifier  (texture-based false-alarm filtering)
+    │
+    ▼
+Fractured? ──No──▶ Anatomical region, unfractured
+    │Yes
+    ▼
+Morphological Classifier  (EfficientNet-B2, 10 fracture types)
+    │
+    ▼
+Full Diagnosis Output
 ```
 
-## Integrate with your tools
+1. **Anatomical Classifier** — identifies the body region (hand, leg, hip, shoulder) before any further analysis.
+2. **Segmentation** — the user picks between two complementary architectures:
+   - **U-Net** — high sensitivity, catches nearly every fracture. Best for screening.
+   - **YOLOv8m-seg** — faster and more precise. Best when reducing false alarms matters most.
+3. **False-Alarm Filter** — a Random Forest classifier built on classical texture descriptors (GLCM, LBP, Hu Moments, edge density) rejects false positives caused by overlapping bones near joints.
+4. **Morphological Classifier** — categorizes the confirmed fracture into one of ten clinical types (avulsion, comminuted, greenstick, spiral, etc.).
+5. **Web Application** — displays the region, verdict, segmentation mask, and fracture type on a single screen, in under one second, with no dedicated GPU.
 
-* [Set up project integrations](https://gitlab.com/jardaadina/pweb_30645_jarda_adina_tema3/-/settings/integrations)
+---
 
-## Collaborate with your team
+## Results
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+Trained and validated on [FracAtlas](https://www.nature.com/articles/s41597-023-02432-4) (4,083 X-rays, 4 anatomical regions) and [Bone Break Classification](https://www.kaggle.com/datasets/pkdarabi/bone-break-classification-image-dataset) (10 morphological classes).
 
-## Test and Deploy
+| Module | Architecture | Metric | Value |
+|---|---|---|---|
+| Anatomical classifier | EfficientNet-B2 | Accuracy | **99.46%** |
+| False-alarm filter | Random Forest | Accuracy | **95.12%** |
+| Morphological classifier | EfficientNet-B2 (10 classes) | Accuracy | **78.55%** |
+| Full system | End-to-end | Inference time | **< 1 second** (CPU) |
 
-Use the built-in continuous integration in GitLab.
+Compared against the official FracAtlas baseline — same test set, same metrics:
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+| Model | Recall | Precision | F1 | mAP@50 |
+|---|---|---|---|---|
+| YOLOv8s-seg (FracAtlas baseline) | 49.90% | 80.70% | – | 58.90% |
+| **U-Net + Random Forest (proposed)** | **91.80%** | **99.00%** | **95.73%** | – |
+| YOLOv8m-seg + Random Forest (proposed) | 62.30% | 88.37% | 73.08% | 54.10% |
 
-***
+The baseline model catches roughly half of all fractures. The proposed U-Net pipeline misses only 5 out of 61 — a **+41.9 percentage point** improvement in recall, the metric that matters most clinically.
 
-# Editing this README
+---
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+## Tech Stack
 
-## Suggestions for a good README
+| Layer | Technologies |
+|---|---|
+| **Frontend** | React, TypeScript |
+| **Backend** | Java, Spring Boot, Spring Security, JWT |
+| **ML Service** | Python, FastAPI, PyTorch, Ultralytics (YOLO), segmentation-models-pytorch, scikit-learn |
+| **Database** | PostgreSQL |
+| **Training environment** | Google Colab, Tesla T4 GPU |
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+The application runs as three separate services: a React frontend, a Spring Boot backend handling auth and persistence, and a Python/FastAPI service that keeps all five ML models in memory for inference.
 
-## Name
-Choose a self-explaining name for your project.
+---
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+## Screenshots
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+<table>
+<tr>
+<td>
+<img src="./docs/screenshots/MANA.png" width="400">
+<br>
+<sub>Fracture detected — region, mask, and type</sub>
+</td>
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+<td>
+<img src="./docs/screenshots/PICIOR.png" width="400">
+<br>
+<sub>Fracture detected — region, mask, and type</sub>
+</td>
+</tr>
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+<tr>
+<td>
+<img src="./docs/screenshots/radiographies.png" width="400">
+<br>
+<sub>More X-Rays</sub>
+</td>
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+<td>
+<img src="./docs/screenshots/upload.png" width="400">
+<br>
+<sub>Uploading an X-ray for analysis</sub>
+</td>
+</tr>
+</table>
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+---
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+## Key Contributions
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+- **Unified multi-task pipeline** — anatomical classification, detection, segmentation, false-alarm filtering, and morphological typing, combined for the first time on FracAtlas.
+- **Comparative segmentation study** — U-Net and YOLOv8m-seg evaluated on the same test set with the same metrics, highlighting their complementary sensitivity/precision trade-off.
+- **Texture-based validation classifier** — a Random Forest model using classical descriptors (GLCM, LBP, Hu Moments) to suppress false positives from overlapping bone structures, offering an interpretable alternative to a purely neural approach.
+- **State-of-the-art results on FracAtlas** — the proposed system outperforms the published baseline on every comparable metric while running in real time on a standard CPU.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+---
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+## Future Work
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+- Improve recognition of subtle fracture types (e.g., impacted, spiral) with larger, more balanced datasets
+- Add morphological annotations directly to FracAtlas, enabling end-to-end training on a single dataset
+- Extend the system to other anatomical regions and imaging modalities
+- Integrate explainability, showing the reasoning behind each decision
+- Clinical validation as a decision-support tool in emergency departments
 
-## License
-For open source projects, say how it is licensed.
+---
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+## Author
+
+**Adina-Ionela Jarda**
+
+Coordinator: Conf. Dr. Ing. Raluca Didona Brehar
+
+Technical University of Cluj-Napoca — Faculty of Automation and Computer Science, July 2026
+
+adinajarda2@gmail.com · [LinkedIn](https://www.linkedin.com/in/adina-jarda-6908502a9/) · [GitHub](https://github.com/jardaadina)
