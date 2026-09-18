@@ -20,7 +20,7 @@ Most existing research tackles a single isolated task — either detection *or* 
 Five sequential modules, one complete diagnosis:
 
 <p align="center">
-  <img src="docs/screenshots/workflow-diagram.png" width="500" alt="FractureScope pipeline diagram"/>
+  <img src="docs/screenshots/workflow_diagram2.png" width="500" alt="FractureScope pipeline diagram"/>
 </p>
 
 1. **Anatomical Classifier** — identifies the body region (hand, leg, hip, shoulder) before any further analysis.
